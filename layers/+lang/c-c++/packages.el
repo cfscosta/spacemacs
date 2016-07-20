@@ -25,7 +25,10 @@
     semantic
     stickyfunc-enhance
     ycmd
+    malinka
+    rtags
     xcscope
+    irony
     ))
 
 (unless (version< emacs-version "24.4")
@@ -70,6 +73,7 @@
 (defun c-c++/post-init-company ()
   (spacemacs|add-company-hook c-mode-common)
   (spacemacs|add-company-hook cmake-mode)
+  (spacemacs|add-company-hook company-irony)
 
   (when c-c++-enable-clang-support
     (push 'company-clang company-backends-c-mode-common)
@@ -128,6 +132,30 @@
 
 (defun c-c++/post-init-company-ycmd ()
   (push 'company-ycmd company-backends-c-mode-common))
+
+(defun c-c++/init-rtags ()
+  (use-package rtags))
+
+(defun c-c++/post-init-rtags ()
+  (setq rtags-autostart-diagnostics t)
+  (setq rtags-completion-enabled t)
+  (add-hook 'c-mode-common-hook
+            (lambda ()
+              (local-set-key (kbd "<f5>") 'rtags-find-symbol-at-point)
+              (local-set-key (kbd "<f6>") 'rtags-find-references)
+              (local-set-key (kbd "<f7>") 'rtags-location-stack-back)
+              (local-set-key (kbd "<f8>") 'rtags-location-stack-forward))))
+
+(defun c-c++/init-malinka ()
+  (use-package malinka))
+
+(defun c-c++/post-init-malinka ()
+  (add-hook 'c++-mode-hook 'malinka-mode))
+
+(defun c-c++/post-init-irony ()
+  (add-hook 'c++-mode-hook 'irony-mode)
+  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+  (add-hook 'irony-mode-hook (lambda () (local-set-key (kbd "C-`") 'company-irony))))
 
 (defun c-c++/pre-init-xcscope ()
   (spacemacs|use-package-add-hook xcscope
